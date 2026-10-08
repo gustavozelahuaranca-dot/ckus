@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BlockZone: Estudiantes App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #020617;
+            color: #f8fafc;
+            touch-action: manipulation;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .app-shell {
+            box-shadow: 0 25px 50px -12px rgba(14, 165, 233, 0.25), 0 0 35px rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        canvas {
+            display: block;
+            background: linear-gradient(135deg, #020617 0%, #090d16 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black">
+
+    <div class="app-shell w-full max-w-3xl bg-slate-900/95 backdrop-blur-xl rounded-2xl overflow-hidden flex flex-col">
+        
+        <!-- App Header & Navigation Tabs -->
+        <div class="bg-slate-950 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 select-none">
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-rose-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-amber-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-emerald-500/80"></div>
+                <span class="ml-2 text-xs font-orbitron font-bold tracking-wider text-cyan-400">BLOCKZONE // ESTUDIANTES APP</span>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="flex items-center space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                <button id="tabGameBtn" onclick="switchTab('game')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-cyan-600 text-white shadow-md">🎮 Minijuego</button>
+                <button id="tabStudyBtn" onclick="switchTab('study')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">📚 Apoyo Escolar</button>
+            </div>
+        </div>
+
+        <div id="tabGameContent" class="flex flex-col">
+            <!-- Game Top Status Bar -->
+            <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs font-semibold text-slate-300">
+                <span id="headerLevel" class="text-cyan-400 font-orbitron">Nivel 1 / 4</span>
+                <span id="headerScore" class="text-amber-300 font-orbitron">Ptos: 0</span>
+                <span id="headerLives" class="text-rose-400">❤❤❤</span>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="relative w-full aspect-[16/9] bg-black overflow-hidden">
+                <canvas id="gameCanvas" width="800" height="450" class="w-full h-full object-contain"></canvas>
+            </div>
+
+            <!-- Game Touch & Keyboard Controls Footer -->
+            <div class="bg-slate-950 p-3 sm:p-4 border-t border-slate-800 flex flex-col gap-2">
+                <div class="flex items-center justify-between gap-2">
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button id="btnLeft" class="flex-1 sm:flex-none bg-slate-900 active:bg-cyan-600/30 border border-slate-800 hover:border-cyan-500 text-cyan-400 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95">◀ IZQ</button>
+                        <button id="btnRight" class="flex-1 sm:flex-none bg-slate-900 active:bg-cyan-600/30 border border-slate-800 hover:border-cyan-500 text-cyan-400 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95">DER ▶</button>
+                    </div>
+                    <button id="btnJump" class="flex-1 sm:flex-none bg-gradient-to-r from-cyan-600 to-blue-600 active:from-cyan-700 active:to-blue-700 text-white font-bold px-8 py-2.5 rounded-xl text-sm transition-all active:scale-95 shadow-lg shadow-cyan-900/50 border border-cyan-400/30">SALTO ▲</button>
+                </div>
+                <div class="text-center text-[11px] text-slate-400 flex flex-wrap items-center justify-center gap-2">
+                    <span>Controles: <kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-cyan-400 border border-slate-800">←</kbd> <kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-cyan-400 border border-slate-800">→</kbd> Mover</span>
+                    <span>•</span>
+                    <span><kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-cyan-400 border border-slate-800">ESPACIO</kbd> Saltar</span>
+                    <span>•</span>
+                    <span><kbd class="bg-slate-900 px-1.5 py-0.5 rounded text-cyan-400 border border-slate-800">R</kbd> Reiniciar</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tabStudyContent" class="hidden flex-col p-4 sm:p-6 bg-slate-900 min-h-[450px] overflow-y-auto max-h-[500px]">
+            <div class="max-w-2xl mx-auto w-full space-y-6">
+                
+                <div>
+                    <h2 class="text-xl font-bold font-orbitron text-cyan-400 mb-1">📚 Apoyo Escolar & Recursos</h2>
+                    <p class="text-xs text-slate-400">Herramientas prácticas para optimizar tus repasos, tareas y exámenes de secundaria.</p>
+                </div>
+
+                <!-- Tool 1: AI Summary Generator Simulator -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 shadow-inner">
+                    <h3 class="text-sm font-bold text-slate-200 mb-2 flex items-center gap-2">
+                        <span>⚡ Generador Rápido de Resúmenes</span>
+                    </h3>
+                    <textarea id="studyText" rows="3" placeholder="Pega aquí el texto largo de tu lectura o tarea..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 mb-2"></textarea>
+                    <button onclick="generateSummary()" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-md">Generar Puntos Clave</button>
+                    <div id="summaryResult" class="mt-3 text-xs text-slate-300 bg-slate-900/80 p-3 rounded-lg border border-slate-800 hidden"></div>
+                </div>
+
+                <!-- Tool 2: Quick Formulas & Notes -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <h4 class="text-xs font-bold text-amber-400 font-orbitron mb-2">📐 Fórmulas Útiles (Matemáticas/Física)</h4>
+                        <ul class="text-xs space-y-1.5 text-slate-300">
+                            <li>• <b>Área del Círculo:</b> $A = \pi \cdot r^2$</li>
+                            <li>• <b>Teorema de Pitágoras:</b> $a^2 + b^2 = c^2$</li>
+                            <li>• <b>Velocidad:</b> $v = \frac{d}{t}$</li>
+                            <li>• <b>Fuerza:</b> $F = m \cdot a$</li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <h4 class="text-xs font-bold text-emerald-400 font-orbitron mb-2">💡 Tips de Estudio Efectivo</h4>
+                        <ul class="text-xs space-y-1.5 text-slate-300">
+                            <li>• <b>Técnica Pomodoro:</b> 25 min estudio / 5 min descanso.</li>
+                            <li>• <b>Active Recall:</b> Explica el tema en voz alta con tus propias palabras.</li>
+                            <li>• <b>Mapas Mentales:</b> Conecta conceptos clave visualmente.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tool 3: Personal Notes Pad -->
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                    <h3 class="text-sm font-bold text-slate-200 mb-2">📝 Mis Notas Rápidas de Estudio</h3>
+                    <textarea id="userNotes" placeholder="Escribe aquí tus apuntes importantes para el examen..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 h-24"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <button onclick="saveNotes()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition-all">Guardar Notas</button>
+                        <span id="saveStatus" class="text-[11px] text-emerald-400 hidden">¡Guardado con éxito!</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(tab) {
+            const gameBtn = document.getElementById("tabGameBtn");
+            const studyBtn = document.getElementById("tabStudyBtn");
+            const gameContent = document.getElementById("tabGameContent");
+            const studyContent = document.getElementById("tabStudyContent");
+
+            if (tab === 'game') {
+                gameBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-cyan-600 text-white shadow-md";
+                studyBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                gameContent.classList.remove("hidden");
+                studyContent.classList.add("hidden");
+            } else {
+                studyBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all bg-cyan-600 text-white shadow-md";
+                gameBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+                studyContent.classList.remove("hidden");
+                gameContent.classList.add("hidden");
+            }
+        }
+
+        // Study Tools Functions
+        function generateSummary() {
+            const text = document.getElementById("studyText").value.trim();
+            const resultBox = document.getElementById("summaryResult");
+            if (!text) {
+                resultBox.innerHTML = "<span class='text-rose-400'>Por favor, ingresa algún texto primero.</span>";
+                resultBox.classList.remove("hidden");
+                return;
+            }
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            const summary = sentences.slice(0, 3).map(s => `• ${s.trim()}.`).join("<br>");
+            resultBox.innerHTML = `<strong>Puntos Clave Generados:</strong><br>${summary}`;
+            resultBox.classList.remove("hidden");
+        }
+
+        function saveNotes() {
+            const notes = document.getElementById("userNotes").value;
+            localStorage.setItem("blockzone_study_notes", notes);
+            const status = document.getElementById("saveStatus");
+            status.classList.remove("hidden");
+            setTimeout(() => status.classList.add("hidden"), 2500);
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            const saved = localStorage.getItem("blockzone_study_notes");
+            if (saved) document.getElementById("userNotes").value = saved;
+        });
+
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let gameState = "start"; // 'start', 'playing', 'quiz', 'gameover', 'victory'
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+
+        const headerLevel = document.getElementById("headerLevel");
+        const headerScore = document.getElementById("headerScore");
+        const headerLives = document.getElementById("headerLives");
+
+        function updateHUD() {
+            headerLevel.textContent = `Nivel ${level} / 4`;
+            headerScore.textContent = `Ptos: ${score}`;
+            headerLives.textContent = '❤️'.repeat(Math.max(0, lives));
+        }
+
+        // Web Audio API Synthesizer
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if (type === 'jump') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(560, now + 0.15);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'coin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.setValueAtTime(950, now + 0.08);
+                gain.gain.setValueAtTime(0.07, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.18);
+                osc.start(now); osc.stop(now + 0.18);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.linearRampToValueAtTime(50, now + 0.25);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now); osc.stop(now + 0.25);
+            } else if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(660, now + 0.1);
+                osc.frequency.setValueAtTime(880, now + 0.2);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        }
+
+        // Player configuration
+        let player = {
+            x: 50,
+            y: 310,
+            width: 26,
+            height: 34,
+            vx: 0,
+            vy: 0,
+            speed: 5,
+            jumpForce: -11.5,
+            gravity: 0.52,
+            grounded: false,
+            color: "#38bdf8"
+        };
+
+        let keys = {};
+
+        window.addEventListener("keydown", (e) => {
+            keys[e.code] = true;
+
+            if (gameState === "quiz") {
+                if (e.code === "Digit1" || e.code === "Numpad1") answerQuiz(0);
+                if (e.code === "Digit2" || e.code === "Numpad2") answerQuiz(1);
+                if (e.code === "Digit3" || e.code === "Numpad3") answerQuiz(2);
+                return;
+            }
+
+            if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") {
+                if (gameState === "start" || gameState === "gameover" || gameState === "victory") {
+                    resetGame();
+                    gameState = "playing";
+                } else if (player.grounded) {
+                    player.vy = player.jumpForce;
+                    player.grounded = false;
+                    playSound('jump');
+                }
+                e.preventDefault();
+            }
+
+            if (e.code === "KeyR") {
+                resetGame();
+                gameState = "playing";
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            keys[e.code] = false;
+        });
+
+        // Touch Controls Setup
+        const bindTouch = (id, code) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; });
+            el.addEventListener("touchend", (e) => { e.preventDefault(); keys[code] = false; });
+            el.addEventListener("mousedown", () => { keys[code] = true; });
+            el.addEventListener("mouseup", () => { keys[code] = false; });
+        };
+        bindTouch("btnLeft", "ArrowLeft");
+        bindTouch("btnRight", "ArrowRight");
+
+        const btnJump = document.getElementById("btnJump");
+        if (btnJump) {
+            btnJump.addEventListener("touchstart", (e) => { e.preventDefault(); handleJumpAction(); });
+            btnJump.addEventListener("click", () => { handleJumpAction(); });
+        }
+
+        function handleJumpAction() {
+            if (gameState === "playing" && player.grounded) {
+                player.vy = player.jumpForce;
+                player.grounded = false;
+                playSound('jump');
+            } else if (gameState !== "playing" && gameState !== "quiz") {
+                resetGame();
+                gameState = "playing";
+            }
+        }
+
+        // Educational Trivia Quiz Bank
+        const quizBank = [
+            {
+                level: 1,
+                question: "¿Cómo se le conoce popularmente a Arequipa debido al sillar blanco de sus casonas?",
+                options: ["1. La Ciudad Roja", "2. La Ciudad Blanca", "3. La Ciudad Heroica"],
+                correct: 1
+            },
+            {
+                level: 2,
+                question: "¿Cuál es el nombre del imponente volcán tutelar que vigila la ciudad de Arequipa?",
+                options: ["1. El Misti", "2. El Huascarán", "3. El Chachani"],
+                correct: 0
+            },
+            {
+                level: 3,
+                question: "En la literatura peruana, ¿quién es el autor de las célebres 'Tradiciones Peruanas'?",
+                options: ["1. César Vallejo", "2. Ricardo Palma", "3. José María Arguedas"],
+                correct: 1
+            },
+            {
+                level: 4,
+                question: "¿En qué estado físico se encuentra el agua a temperatura ambiente estándar (aprox. 20°C)?",
+                options: ["1. Estado Sólido", "2. Estado Gaseoso", "3. Estado Líquido"],
+                correct: 2
+            }
+        ];
+
+        let currentQuiz = null;
+        let platforms = [];
+        let enemies = [];
+        let coins = [];
+        let goal = {};
+
+        function loadLevel(lvl) {
+            platforms = [];
+            enemies = [];
+            coins = [];
+
+            if (lvl === 1) {
+                platforms = [
+                    { x: 0, y: 400, width: 800, height: 50, color: "#1e293b" },
+                    { x: 200, y: 310, width: 120, height: 18, color: "#334155" },
+                    { x: 400, y: 230, width: 120, height: 18, color: "#334155" },
+                    { x: 600, y: 150, width: 120, height: 18, color: "#334155" }
+                ];
+                enemies = [
+                    { x: 230, y: 377, width: 23, height: 23, vx: 2, minX: 200, maxX: 300 }
+                ];
+                coins = [
+                    { x: 260, y: 270, radius: 8, collected: false },
+                    { x: 460, y: 190, radius: 8, collected: false },
+                    { x: 660, y: 110, radius: 8, collected: false }
+                ];
+                goal = { x: 720, y: 80, width: 32, height: 70 };
+            } else if (lvl === 2) {
+                platforms = [
+                    { x: 0, y: 400, width: 800, height: 50, color: "#1e293b" },
+                    { x: 140, y: 310, width: 105, height: 18, color: "#334155" },
+                    { x: 310, y: 230, width: 105, height: 18, color: "#334155" },
+                    { x: 490, y: 160, width: 105, height: 18, color: "#334155" },
+                    { x: 200, y: 110, width: 85, height: 18, color: "#334155" }
+                ];
+                enemies = [
+                    { x: 60, y: 377, width: 23, height: 23, vx: 2.8, minX: 30, maxX: 350 },
+                    { x: 320, y: 207, width: 23, height: 23, vx: -2.5, minX: 310, maxX: 400 }
+                ];
+                coins = [
+                    { x: 192, y: 270, radius: 8, collected: false },
+                    { x: 542, y: 120, radius: 8, collected: false },
+                    { x: 242, y: 70, radius: 8, collected: false }
+                ];
+                goal = { x: 730, y: 330, width: 32, height: 70 };
+            } else if (lvl === 3) {
+                platforms = [
+                    { x: 0, y: 400, width: 800, height: 50, color: "#1e293b" },
+                    { x: 110, y: 300, width: 90, height: 18, color: "#334155" },
+                    { x: 270, y: 210, width: 90, height: 18, color: "#334155" },
+                    { x: 430, y: 130, width: 90, height: 18, color: "#334155" },
+                    { x: 590, y: 200, width: 90, height: 18, color: "#334155" }
+                ];
+                enemies = [
+                    { x: 130, y: 377, width: 23, height: 23, vx: 3.2, minX: 40, maxX: 380 },
+                    { x: 290, y: 187, width: 23, height: 23, vx: -3, minX: 270, maxX: 340 },
+                    { x: 450, y: 107, width: 23, height: 23, vx: 3, minX: 430, maxX: 500 }
+                ];
+                coins = [
+                    { x: 155, y: 260, radius: 8, collected: false },
+                    { x: 475, y: 90, radius: 8, collected: false },
+                    { x: 635, y: 160, radius: 8, collected: false }
+                ];
+                goal = { x: 730, y: 330, width: 32, height: 70 };
+            } else if (lvl === 4) {
+                platforms = [
+                    { x: 0, y: 400, width: 800, height: 50, color: "#1e293b" },
+                    { x: 130, y: 310, width: 75, height: 18, color: "#334155" },
+                    { x: 280, y: 230, width: 75, height: 18, color: "#334155" },
+                    { x: 430, y: 150, width: 75, height: 18, color: "#334155" },
+                    { x: 590, y: 220, width: 75, height: 18, color: "#334155" }
+                ];
+                enemies = [
+                    { x: 90, y: 377, width: 23, height: 23, vx: 3.8, minX: 20, maxX: 450 },
+                    { x: 300, y: 207, width: 23, height: 23, vx: -3.5, minX: 280, maxX: 335 },
+                    { x: 450, y: 127, width: 23, height: 23, vx: 3.8, minX: 430, maxX: 490 }
+                ];
+                coins = [
+                    { x: 167, y: 270, radius: 8, collected: false },
+                    { x: 467, y: 110, radius: 8, collected: false },
+                    { x: 627, y: 180, radius: 8, collected: false }
+                ];
+                goal = { x: 730, y: 330, width: 32, height: 70 };
+            }
+
+            player.x = 40;
+            player.y = 320;
+            player.vx = 0;
+            player.vy = 0;
+            updateHUD();
+        }
+
+        function resetGame() {
+            score = 0;
+            lives = 3;
+            level = 1;
+            loadLevel(level);
+        }
+
+        function checkCollision(r1, r2) {
+            return (
+                r1.x < r2.x + r2.width &&
+                r1.x + r1.width > r2.x &&
+                r1.y < r2.y + r2.height &&
+                r1.y + r1.height > r2.y
+            );
+        }
+
+        function update() {
+            if (gameState !== "playing") return;
+
+            if (keys["ArrowLeft"] || keys["KeyA"]) {
+                player.vx = -player.speed;
+            } else if (keys["ArrowRight"] || keys["KeyD"]) {
+                player.vx = player.speed;
+            } else {
+                player.vx = 0;
+            }
+
+            player.x += player.vx;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+
+            player.vy += player.gravity;
+            player.y += player.vy;
+            player.grounded = false;
+
+            for (let p of platforms) {
+                if (
+                    player.x < p.x + p.width &&
+                    player.x + player.width > p.x &&
+                    player.y + player.height >= p.y &&
+                    player.y + player.height - player.vy <= p.y + 8 &&
+                    player.vy >= 0
+                ) {
+                    player.y = p.y - player.height;
+                    player.vy = 0;
+                    player.grounded = true;
+                }
+            }
+
+            for (let e of enemies) {
+                e.x += e.vx;
+                if (e.x <= e.minX || e.x + e.width >= e.maxX) {
+                    e.vx *= -1;
+                }
+
+                if (checkCollision(player, e)) {
+                    lives--;
+                    playSound('hit');
+                    updateHUD();
+                    if (lives <= 0) {
+                        gameState = "gameover";
+                    } else {
+                        player.x = 40;
+                        player.y = 260;
+                        player.vy = 0;
+                    }
+                }
+            }
+
+            for (let c of coins) {
+                if (!c.collected) {
+                    let distX = (player.x + player.width / 2) - c.x;
+                    let distY = (player.y + player.height / 2) - c.y;
+                    let distance = Math.sqrt(distX * distX + distY * distY);
+
+                    if (distance < player.width / 2 + c.radius) {
+                        c.collected = true;
+                        score += 100;
+                        playSound('coin');
+                        updateHUD();
+                    }
+                }
+            }
+
+            if (checkCollision(player, goal)) {
+                currentQuiz = quizBank.find(q => q.level === level) || quizBank[0];
+                gameState = "quiz";
+            }
+
+            if (player.y > canvas.height) {
+                lives--;
+                playSound('hit');
+                updateHUD();
+                if (lives <= 0) {
+                    gameState = "gameover";
+                } else {
+                    player.x = 40;
+                    player.y = 260;
+                    player.vy = 0;
+                }
+            }
+        }
+
+        function answerQuiz(optionIndex) {
+            if (optionIndex === currentQuiz.correct) {
+                score += 300;
+                playSound('correct');
+                updateHUD();
+                if (level < 4) {
+                    level++;
+                    loadLevel(level);
+                    gameState = "playing";
+                } else {
+                    gameState = "victory";
+                }
+            } else {
+                lives--;
+                playSound('hit');
+                updateHUD();
+                if (lives <= 0) {
+                    gameState = "gameover";
+                } else {
+                    loadLevel(level);
+                    gameState = "playing";
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            const t=performance.now()*0.001;
+            const bg=ctx.createLinearGradient(0,0,800,450); bg.addColorStop(0,"#030712"); bg.addColorStop(.5,"#111827"); bg.addColorStop(1,"#172554"); ctx.fillStyle=bg; ctx.fillRect(0,0,800,450);
+            ctx.strokeStyle="rgba(56,189,248,.08)"; ctx.lineWidth=1;
+            for(let x=0;x<=800;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,450);ctx.stroke();}
+            for(let y=0;y<=450;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(800,y);ctx.stroke();}
+            for(let i=0;i<8;i++){let x=(i*137+70)%800,y=45+(i*71)%330;ctx.fillStyle=i%2?"rgba(34,211,238,.5)":"rgba(217,70,239,.45)";ctx.beginPath();ctx.arc(x,y+Math.sin(t+i)*7,2+i%3,0,Math.PI*2);ctx.fill();}
+            if(gameState==="start"){ctx.textAlign="center";ctx.shadowBlur=25;ctx.shadowColor="#22d3ee";ctx.fillStyle="#67e8f9";ctx.font="900 36px Orbitron";ctx.fillText("BLOCKZONE",400,125);ctx.shadowBlur=0;ctx.fillStyle="#e879f9";ctx.font="700 15px Plus Jakarta Sans";ctx.fillText("ESTUDIANTES • AVENTURA • APRENDIZAJE",400,155);ctx.shadowBlur=22;ctx.shadowColor="#a855f7";ctx.fillStyle="#7c3aed";ctx.fillRect(335,185,130,55);ctx.shadowBlur=0;ctx.strokeStyle="#e9d5ff";ctx.lineWidth=3;ctx.strokeRect(335,185,130,55);ctx.fillStyle="#fff";ctx.font="900 20px Orbitron";ctx.fillText("PLAY!",400,220);ctx.fillStyle="#cbd5e1";ctx.font="14px Plus Jakarta Sans";ctx.fillText("Supera plataformas • consigue estrellas • responde retos",400,285);ctx.fillStyle="#4ade80";ctx.font="700 16px Plus Jakarta Sans";ctx.fillText("▶ PRESIONA ESPACIO O TOCA SALTO",400,345);return;}
+            if(gameState==="quiz"){ctx.fillStyle="rgba(2,6,23,.95)";ctx.fillRect(25,25,750,400);ctx.strokeStyle="#22d3ee";ctx.lineWidth=3;ctx.strokeRect(25,25,750,400);ctx.textAlign="center";ctx.shadowBlur=15;ctx.shadowColor="#22d3ee";ctx.fillStyle="#67e8f9";ctx.font="900 22px Orbitron";ctx.fillText(`🧠 RETO ACADÉMICO • NIVEL ${level}`,400,72);ctx.shadowBlur=0;ctx.fillStyle="#f8fafc";ctx.font="600 15px Plus Jakarta Sans";ctx.fillText(currentQuiz.question,400,120);for(let i=0;i<3;i++){let y=175+i*62;ctx.fillStyle="#172033";ctx.fillRect(120,y,560,46);ctx.strokeStyle=i===0?"#22d3ee":"#475569";ctx.strokeRect(120,y,560,46);ctx.fillStyle="#fff";ctx.textAlign="left";ctx.font="700 14px Plus Jakarta Sans";ctx.fillText(currentQuiz.options[i],145,y+29);}ctx.textAlign="center";ctx.fillStyle="#94a3b8";ctx.font="12px Plus Jakarta Sans";ctx.fillText("⌨ Presiona 1, 2 o 3 para responder",400,385);return;}
+            if(gameState==="gameover"||gameState==="victory"){let v=gameState==="victory";ctx.fillStyle=v?"rgba(6,78,59,.94)":"rgba(69,10,10,.94)";ctx.fillRect(30,55,740,330);ctx.strokeStyle=v?"#4ade80":"#fb7185";ctx.lineWidth=3;ctx.strokeRect(30,55,740,330);ctx.textAlign="center";ctx.fillStyle=v?"#86efac":"#fb7185";ctx.font="900 28px Orbitron";ctx.fillText(v?"🏆 ¡VICTORIA!":"💥 MISIÓN NO SUPERADA",400,145);ctx.fillStyle="#fff";ctx.font="700 19px Plus Jakarta Sans";ctx.fillText(`Puntuación: ${score} PTS`,400,205);ctx.fillStyle="#cbd5e1";ctx.font="14px Plus Jakarta Sans";ctx.fillText(v?"¡Completaste los 4 niveles y tus retos académicos!":"No te rindas. ¡Vuelve a intentarlo!",400,245);ctx.fillStyle="#67e8f9";ctx.font="800 15px Plus Jakarta Sans";ctx.fillText("▶ PRESIONA R O TOCA SALTO PARA JUGAR",400,305);return;}
+            for(let p of platforms){let g=ctx.createLinearGradient(p.x,p.y,p.x,p.y+p.height);g.addColorStop(0,"#334155");g.addColorStop(1,"#0f172a");ctx.fillStyle=g;ctx.shadowBlur=10;ctx.shadowColor="rgba(34,211,238,.4)";ctx.fillRect(p.x,p.y,p.width,p.height);ctx.shadowBlur=0;ctx.strokeStyle="#22d3ee";ctx.lineWidth=2;ctx.strokeRect(p.x,p.y,p.width,p.height);}
+            ctx.save();ctx.translate(goal.x+goal.width/2,goal.y+goal.height/2);ctx.scale(1+Math.sin(t*5)*.08,1+Math.sin(t*5)*.08);ctx.shadowBlur=25;ctx.shadowColor="#d946ef";ctx.fillStyle="#7c3aed";ctx.fillRect(-goal.width/2,-goal.height/2,goal.width,goal.height);ctx.shadowBlur=0;ctx.strokeStyle="#f5d0fe";ctx.strokeRect(-goal.width/2,-goal.height/2,goal.width,goal.height);ctx.restore();
+            for(let c of coins)if(!c.collected){ctx.save();ctx.translate(c.x,c.y);ctx.rotate(t*2.5);ctx.shadowBlur=16;ctx.shadowColor="#facc15";ctx.fillStyle="#facc15";ctx.beginPath();for(let i=0;i<10;i++){let a=-Math.PI/2+i*Math.PI/5,r=i%2===0?11:5,x=Math.cos(a)*r,y=Math.sin(a)*r;i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.fill();ctx.restore();}
+            for(let e of enemies){ctx.shadowBlur=12;ctx.shadowColor="#fb7185";ctx.fillStyle="#ef4444";ctx.fillRect(e.x,e.y,e.width,e.height);ctx.shadowBlur=0;ctx.fillStyle="#fff";ctx.fillRect(e.x+5,e.y+5,4,4);ctx.fillRect(e.x+14,e.y+5,4,4);ctx.fillStyle="#111827";ctx.fillRect(e.x+7,e.y+15,10,3);}
+            ctx.shadowBlur=18;ctx.shadowColor="#22d3ee";let pg=ctx.createLinearGradient(player.x,player.y,player.x,player.y+player.height);pg.addColorStop(0,"#67e8f9");pg.addColorStop(1,"#2563eb");ctx.fillStyle=pg;ctx.fillRect(player.x,player.y,player.width,player.height);ctx.shadowBlur=0;ctx.strokeStyle="#ecfeff";ctx.lineWidth=2;ctx.strokeRect(player.x,player.y,player.width,player.height);ctx.fillStyle="#082f49";ctx.fillRect(player.x+5,player.y+9,5,5);ctx.fillRect(player.x+16,player.y+9,5,5);ctx.fillRect(player.x+8,player.y+22,10,3);
+            ctx.textAlign="left";ctx.fillStyle="rgba(2,6,23,.7)";ctx.fillRect(12,12,185,30);ctx.strokeStyle="rgba(34,211,238,.45)";ctx.strokeRect(12,12,185,30);ctx.fillStyle="#67e8f9";ctx.font="700 12px Orbitron";ctx.fillText(`NIVEL ${level} • ${score} PTS`,24,32);
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize application on load
+        loadLevel(1);
+        gameLoop();
+    </script>
+</body>
+</html>
